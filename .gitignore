@@ -1,0 +1,29 @@
+# ─── Dependencies ────────────────────────────────────────────────
+node_modules/
+
+# ─── Python ──────────────────────────────────────────────────────
+backend/venv/
+__pycache__/
+*.pyc
+*.pyo
+.Python
+
+# ─── Environment Variables (contain secrets!) ───────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── Next.js Build Output ───────────────────────────────────────
+.next/
+out/
+
+# ─── IDE / Editor ───────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── OS Files ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

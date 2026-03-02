@@ -1,0 +1,19 @@
+# ─── Python Dependencies ─────────────────────────────────────────
+# Each line is a package that pip will install.
+# Pin versions for reproducibility (so everyone gets the same versions).
+#
+# fastapi          → The web framework (handles HTTP requests)
+# uvicorn          → ASGI server (actually runs the FastAPI app)
+# google-generativeai → Google's Gemini AI SDK
+# pypdf            → PDF text extraction
+# youtube-transcript-api → YouTube transcript fetching
+# python-multipart → Required by FastAPI for file uploads
+# python-dotenv    → Loads .env file into environment variables
+
+fastapi>=0.115.0
+uvicorn>=0.34.0
+google-generativeai>=0.8.0
+pypdf>=5.0.0
+youtube-transcript-api>=0.6.0
+python-multipart>=0.0.18
+python-dotenv>=1.0.0
