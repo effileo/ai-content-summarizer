@@ -62,3 +62,12 @@ class SummaryResponse(BaseModel):
         ...,
         description="Name of the source file or URL",
     )
+
+
+class TranscriptResponse(BaseModel):
+    """Response schema for full YouTube transcript extraction."""
+
+    transcript: str = Field(
+        ...,
+        description="The full transcript of the provided YouTube video as a single string.",
+    )

@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import summarize
+from app.models.schemas import YouTubeRequest, TranscriptResponse
+from app.services.youtube_service import extract_transcript, TranscriptExtractionError
+
 app = FastAPI(
     title="AI Content Summarizer API",
     version="1.0.0",
@@ -28,3 +31,19 @@ app.include_router(summarize.router, prefix="/api/summarize", tags=["Summarize"]
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "message": "AI Content Summarizer API is running"}
+
+
+@app.post("/process-youtube", response_model=TranscriptResponse)
+async def process_youtube(request: YouTubeRequest):
+    try:
+        transcript = await extract_transcript(request.url)
+    except TranscriptExtractionError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": str(exc),
+                "yt_dlp_suggestion": exc.yt_dlp_suggestion,
+            },
+        ) from exc
+
+    return TranscriptResponse(transcript=transcript)
