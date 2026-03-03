@@ -1,11 +1,14 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import summarize
-from app.models.schemas import YouTubeRequest, TranscriptResponse
+from app.models.schemas import SummaryResponse, YouTubeRequest
+from app.services.ai_service import generate_summary
 from app.services.youtube_service import extract_transcript, TranscriptExtractionError
-from app.database import init_db, close_db
+from app.database import close_db, get_db, init_db
+from app.models.db_models import Summary
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 # ─── Application Lifespan ───────────────────────────────────────
@@ -48,8 +51,11 @@ async def health_check():
     return {"status": "ok", "message": "AI Content Summarizer API is running"}
 
 
-@app.post("/process-youtube", response_model=TranscriptResponse)
-async def process_youtube(request: YouTubeRequest):
+@app.post("/process-youtube", response_model=SummaryResponse)
+async def process_youtube(
+    request: YouTubeRequest,
+    db: AsyncSession = Depends(get_db),
+):
     try:
         transcript = await extract_transcript(request.url)
     except TranscriptExtractionError as exc:
@@ -61,4 +67,22 @@ async def process_youtube(request: YouTubeRequest):
             },
         ) from exc
 
-    return TranscriptResponse(transcript=transcript)
+    summary_result = await generate_summary(transcript, source_type="youtube")
+    action_items = summary_result.get("action_items", [])
+
+    db.add(
+        Summary(
+            source_type="youtube",
+            source_name=request.url,
+            summary=summary_result.get("summary", ""),
+            action_items=action_items,
+        )
+    )
+    await db.commit()
+
+    return SummaryResponse(
+        summary=summary_result.get("summary", ""),
+        action_items=action_items,
+        source_type="youtube",
+        source_name=request.url,
+    )
