@@ -1,13 +1,28 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import summarize
 from app.models.schemas import YouTubeRequest, TranscriptResponse
 from app.services.youtube_service import extract_transcript, TranscriptExtractionError
+from app.database import init_db, close_db
+
+
+# ─── Application Lifespan ───────────────────────────────────────
+# Code before `yield` runs on STARTUP (connect to DB)
+# Code after `yield` runs on SHUTDOWN (close DB pool)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+    await close_db()
+
 
 app = FastAPI(
     title="AI Content Summarizer API",
     version="1.0.0",
     description="Summarize PDFs and YouTube videos using Google Gemini AI",
+    lifespan=lifespan,
 )
 
 app.add_middleware(

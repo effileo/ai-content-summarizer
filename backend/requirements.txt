@@ -17,3 +17,9 @@ pypdf>=5.0.0
 youtube-transcript-api>=0.6.0
 python-multipart>=0.0.18
 python-dotenv>=1.0.0
+
+# ─── Database (Supabase / PostgreSQL) ────────────────────────────
+# sqlalchemy[asyncio] → ORM + async support for database operations
+# asyncpg             → High-performance async PostgreSQL driver
+sqlalchemy[asyncio]>=2.0.0
+asyncpg>=0.30.0
