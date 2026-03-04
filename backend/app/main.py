@@ -70,12 +70,15 @@ async def process_youtube(
     summary_result = await generate_summary(transcript, source_type="youtube")
     action_items = summary_result.get("action_items", [])
 
+    # NOTE: user_id should come from the authenticated user in production.
+    # For now, you'll need to pass it once Supabase Auth is integrated.
     db.add(
         Summary(
             source_type="youtube",
-            source_name=request.url,
-            summary=summary_result.get("summary", ""),
+            source_url=request.url,
+            content_summary=summary_result.get("summary", ""),
             action_items=action_items,
+            user_id=request.user_id,  # TODO: get from auth context
         )
     )
     await db.commit()
