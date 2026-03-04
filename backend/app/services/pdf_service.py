@@ -1,18 +1,11 @@
 """
-PDF Service — PDF Text Extraction (Placeholder)
-=================================================
-This service will handle extracting text from uploaded PDF files.
-
-WHAT WILL THIS DO? (Phase 2)
-1. Receive the uploaded PDF bytes
-2. Use pypdf to read and extract text from each page
-3. Return the combined text for AI summarization
-
-WHY pypdf?
-- Pure Python (no system dependencies needed)
-- Handles most PDF formats
-- Lightweight and fast
+PDF Service — PDF Text Extraction
+====================================
+Extracts text from uploaded PDF files using pypdf.
 """
+
+from io import BytesIO
+from pypdf import PdfReader
 
 
 async def extract_text_from_pdf(file_bytes: bytes) -> str:
@@ -25,10 +18,23 @@ async def extract_text_from_pdf(file_bytes: bytes) -> str:
     Returns:
         Extracted text as a single string
 
-    TODO (Phase 2):
-        - Parse PDF using pypdf
-        - Handle multi-page documents
-        - Handle PDFs with images (OCR consideration)
+    Raises:
+        ValueError: If the PDF has no extractable text
     """
-    # Placeholder — will be replaced with actual PDF parsing
-    return "Extracted PDF text will appear here."
+    reader = PdfReader(BytesIO(file_bytes))
+
+    pages_text = []
+    for page in reader.pages:
+        text = page.extract_text()
+        if text:
+            pages_text.append(text.strip())
+
+    full_text = "\n\n".join(pages_text)
+
+    if not full_text.strip():
+        raise ValueError(
+            "Could not extract text from this PDF. "
+            "It may be a scanned document or image-only PDF."
+        )
+
+    return full_text
