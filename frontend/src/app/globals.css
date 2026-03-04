@@ -122,14 +122,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
-/* ─── CUSTOM UTILITIES ────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════ */
+/*  CUSTOM ANIMATIONS & EFFECTS                                 */
+/* ══════════════════════════════════════════════════════════════ */
 
-/* Gradient text effect for the header */
+/* ─── Gradient text effect ──────────────────────────────────── */
 .gradient-text {
   background: linear-gradient(135deg, oklch(0.55 0.25 270), oklch(0.6 0.22 310), oklch(0.55 0.2 240));
   -webkit-background-clip: text;
@@ -144,33 +147,399 @@
   background-clip: text;
 }
 
-/* Subtle glow for cards on hover */
-.card-glow {
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
-}
-.card-glow:hover {
-  box-shadow: 0 0 30px oklch(0.55 0.25 270 / 0.12);
-  transform: translateY(-1px);
-}
-.dark .card-glow:hover {
-  box-shadow: 0 0 30px oklch(0.65 0.28 270 / 0.15);
+/* ─── Animated gradient text ────────────────────────────────── */
+.gradient-text-animated {
+  background: linear-gradient(270deg,
+      oklch(0.65 0.28 270),
+      oklch(0.6 0.22 310),
+      oklch(0.55 0.2 200),
+      oklch(0.65 0.28 270));
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 6s ease infinite;
 }
 
-/* Drag-and-drop zone styles */
+/* ─── Card hover glow ───────────────────────────────────────── */
+.card-glow {
+  transition: box-shadow 0.4s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+
+.card-glow:hover {
+  box-shadow:
+    0 0 40px oklch(0.55 0.25 270 / 0.1),
+    0 8px 32px oklch(0 0 0 / 0.08);
+  transform: translateY(-2px);
+  border-color: oklch(0.55 0.25 270 / 0.3);
+}
+
+.dark .card-glow:hover {
+  box-shadow:
+    0 0 40px oklch(0.65 0.28 270 / 0.15),
+    0 8px 32px oklch(0 0 0 / 0.3);
+  border-color: oklch(0.65 0.28 270 / 0.3);
+}
+
+/* ─── Drag-and-drop zone ────────────────────────────────────── */
 .dropzone-active {
   border-color: oklch(0.55 0.25 270) !important;
   background-color: oklch(0.55 0.25 270 / 0.05) !important;
 }
+
 .dark .dropzone-active {
   border-color: oklch(0.65 0.28 270) !important;
   background-color: oklch(0.65 0.28 270 / 0.08) !important;
 }
 
-/* Pulse animation for loading states */
-@keyframes pulse-glow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+/* ─── Animated dashed border for dropzone ───────────────────── */
+.dropzone-animated-border {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%236366f1' stroke-width='2' stroke-dasharray='10%2c 8' stroke-dashoffset='0' stroke-linecap='round'/%3E%3C/svg%3E");
+  animation: dash-move 1.5s linear infinite;
 }
+
+/* ══════════════════════════════════════════════════════════════ */
+/*  KEYFRAMES                                                   */
+/* ══════════════════════════════════════════════════════════════ */
+
+/* ─── Fade in up ────────────────────────────────────────────── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── Fade in scale ─────────────────────────────────────────── */
+@keyframes fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-scale {
+  animation: fade-in-scale 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── Slide in from left ────────────────────────────────────── */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── Slide in from right ───────────────────────────────────── */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── Gradient background shift ─────────────────────────────── */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ─── Shimmer for loading ───────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg,
+      oklch(0.22 0.03 280) 25%,
+      oklch(0.3 0.04 280) 50%,
+      oklch(0.22 0.03 280) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* Light mode shimmer */
+:root .animate-shimmer {
+  background: linear-gradient(90deg,
+      oklch(0.92 0.01 270) 25%,
+      oklch(0.96 0.005 270) 50%,
+      oklch(0.92 0.01 270) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ─── Pulse glow (loading)  ─────────────────────────────────── */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ─── Dash movement for dropzone border ─────────────────────── */
+@keyframes dash-move {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* ─── Floating mesh blobs ───────────────────────────────────── */
+@keyframes blob-float-1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+@keyframes blob-float-2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(-40px, 30px) scale(1.15);
+  }
+
+  66% {
+    transform: translate(25px, -35px) scale(0.95);
+  }
+}
+
+@keyframes blob-float-3 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(20px, 40px) scale(0.9);
+  }
+
+  66% {
+    transform: translate(-35px, -25px) scale(1.1);
+  }
+}
+
+.animate-blob-1 {
+  animation: blob-float-1 20s ease-in-out infinite;
+}
+
+.animate-blob-2 {
+  animation: blob-float-2 25s ease-in-out infinite;
+}
+
+.animate-blob-3 {
+  animation: blob-float-3 22s ease-in-out infinite;
+}
+
+/* ─── Icon bounce ───────────────────────────────────────────── */
+@keyframes bounce-gentle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.group:hover .animate-bounce-gentle {
+  animation: bounce-gentle 0.6s ease-in-out;
+}
+
+/* ─── Glow ring pulse ──────────────────────────────────────── */
+@keyframes glow-ring {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px oklch(0.65 0.28 270 / 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 20px oklch(0.65 0.28 270 / 0.5), 0 0 40px oklch(0.65 0.28 270 / 0.15);
+  }
+}
+
+.animate-glow-ring {
+  animation: glow-ring 3s ease-in-out infinite;
+}
+
+/* ─── Checkmark bounce ─────────────────────────────────────── */
+@keyframes check-bounce {
+  0% {
+    transform: scale(0.8);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-check-bounce {
+  animation: check-bounce 0.3s ease-out;
+}
+
+/* ─── Gradient button ──────────────────────────────────────── */
+.btn-gradient {
+  background: linear-gradient(135deg, oklch(0.55 0.25 270), oklch(0.5 0.22 290));
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gradient:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px oklch(0.55 0.25 270 / 0.35);
+}
+
+.btn-gradient:active {
+  transform: translateY(0);
+}
+
+.dark .btn-gradient {
+  background: linear-gradient(135deg, oklch(0.6 0.26 270), oklch(0.55 0.24 290));
+}
+
+.dark .btn-gradient:hover {
+  box-shadow: 0 4px 20px oklch(0.65 0.28 270 / 0.4);
+}
+
+/* ─── Focus glow on inputs ─────────────────────────────────── */
+.input-glow:focus-within {
+  box-shadow: 0 0 0 3px oklch(0.55 0.25 270 / 0.15);
+  border-color: oklch(0.55 0.25 270 / 0.5);
+}
+
+.dark .input-glow:focus-within {
+  box-shadow: 0 0 0 3px oklch(0.65 0.28 270 / 0.2);
+  border-color: oklch(0.65 0.28 270 / 0.5);
+}
+
+/* ─── Gradient accent bar (left border accent) ─────────────── */
+.gradient-accent-left {
+  position: relative;
+}
+
+.gradient-accent-left::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, oklch(0.65 0.28 270), oklch(0.6 0.22 310));
+}
+
+/* ─── Progress bar fill ────────────────────────────────────── */
+.progress-fill {
+  background: linear-gradient(90deg, oklch(0.55 0.25 270), oklch(0.6 0.22 310));
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .progress-fill {
+  background: linear-gradient(90deg, oklch(0.65 0.28 270), oklch(0.7 0.22 310));
+}
+
+/* ─── Stagger delay utilities ──────────────────────────────── */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-600 {
+  animation-delay: 600ms;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
 }

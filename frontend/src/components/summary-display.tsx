@@ -1,13 +1,7 @@
 /*
-  SUMMARY DISPLAY COMPONENT
-  ==========================
-  Shows the AI-generated structured summary in a styled card.
-
-  WHAT YOU'LL LEARN:
-  - Clipboard API (navigator.clipboard.writeText)
-  - Conditional rendering with multiple states
-  - Lucide icons for visual indicators
-  - Component composition with shadcn/ui Card
+  SUMMARY DISPLAY COMPONENT — Refined
+  =====================================
+  Slide-in animation, gradient accent bar, enhanced copy button.
 */
 
 "use client";
@@ -37,12 +31,6 @@ export function SummaryDisplay({
 }: SummaryDisplayProps) {
     const [copied, setCopied] = useState(false);
 
-    /*
-      CLIPBOARD API
-      - navigator.clipboard.writeText() copies text to the user's clipboard
-      - It returns a Promise (async), so we use .then()
-      - We show a "Copied!" confirmation for 2 seconds using setTimeout
-    */
     const handleCopy = () => {
         navigator.clipboard.writeText(summary).then(() => {
             setCopied(true);
@@ -51,18 +39,23 @@ export function SummaryDisplay({
     };
 
     return (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+        <Card className="animate-fade-in-up gradient-accent-left overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/5">
                             <Sparkles className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                             <CardTitle className="text-lg">Summary</CardTitle>
                             <CardDescription className="flex items-center gap-2">
-                                {/* Badge shows what type of content was summarized */}
-                                <Badge variant="secondary" className="gap-1 text-xs">
+                                <Badge
+                                    variant="secondary"
+                                    className={`gap-1 text-xs ${sourceType === "youtube"
+                                            ? "border-red-500/20 bg-red-500/10 text-red-400"
+                                            : "border-primary/20 bg-primary/10 text-primary"
+                                        }`}
+                                >
                                     {sourceType === "youtube" ? (
                                         <Youtube className="h-3 w-3" />
                                     ) : (
@@ -77,16 +70,19 @@ export function SummaryDisplay({
                         </div>
                     </div>
 
-                    {/* Copy button */}
+                    {/* Copy button with success animation */}
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={handleCopy}
-                        className="shrink-0"
+                        className={`shrink-0 transition-all ${copied
+                                ? "text-green-500 hover:text-green-500"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
                     >
                         {copied ? (
                             <>
-                                <Check className="h-4 w-4 text-green-500" />
+                                <Check className="animate-check-bounce h-4 w-4" />
                                 Copied!
                             </>
                         ) : (
@@ -99,11 +95,6 @@ export function SummaryDisplay({
                 </div>
             </CardHeader>
             <CardContent>
-                {/* 
-          "whitespace-pre-wrap" preserves line breaks from the AI response.
-          Without it, all text would render on one line.
-          "leading-relaxed" adds comfortable spacing between lines.
-        */}
                 <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                     {summary}
                 </div>

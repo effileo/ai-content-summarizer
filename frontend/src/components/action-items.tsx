@@ -1,18 +1,7 @@
 /*
-  ACTION ITEMS COMPONENT
-  =======================
-  An interactive checklist displaying action items extracted by the AI.
-
-  WHAT YOU'LL LEARN:
-  - Managing a list of items with state (array of booleans)
-  - The shadcn/ui Checkbox component
-  - Array.map() for rendering lists in React
-  - Toggling individual items in an array without mutating state
-
-  WHY NOT JUST MUTATE THE ARRAY?
-  React uses "reference equality" to detect changes.
-  If you do: checkedItems[0] = true  ← React won't notice (same array ref)
-  Instead:  setCheckedItems([...copy]) ← New array = React sees the change
+  ACTION ITEMS COMPONENT — Refined
+  ==================================
+  Animated progress bar, staggered entrance, check bounce, strikethrough.
 */
 
 "use client";
@@ -25,29 +14,17 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ListChecks } from "lucide-react";
+import { ListChecks, Trophy } from "lucide-react";
 
 interface ActionItemsProps {
     items: string[];
 }
 
 export function ActionItems({ items }: ActionItemsProps) {
-    /*
-      STATE: An array of booleans, one per item
-      - items = ["Review docs", "Write tests"]
-      - checkedItems = [false, false]  ← track which are checked
-      - Array(items.length).fill(false) creates [false, false, ...]
-    */
     const [checkedItems, setCheckedItems] = useState<boolean[]>(
         () => new Array(items.length).fill(false)
     );
 
-    /*
-      TOGGLE HANDLER
-      - Creates a NEW array (spread operator [...])
-      - Flips the value at the given index
-      - Sets the new array as state → React re-renders
-    */
     const toggleItem = (index: number) => {
         setCheckedItems((prev) => {
             const next = [...prev];
@@ -56,50 +33,65 @@ export function ActionItems({ items }: ActionItemsProps) {
         });
     };
 
-    // Count how many items are checked (for progress display)
     const completedCount = checkedItems.filter(Boolean).length;
+    const progressPercent = items.length > 0 ? (completedCount / items.length) * 100 : 0;
+    const allDone = completedCount === items.length && items.length > 0;
 
     if (items.length === 0) return null;
 
     return (
-        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
-            <CardHeader>
+        <Card className="animate-fade-in-up delay-200 gradient-accent-left overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                            <ListChecks className="h-5 w-5 text-primary" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-primary/5">
+                            {allDone ? (
+                                <Trophy className="h-5 w-5 text-amber-500" />
+                            ) : (
+                                <ListChecks className="h-5 w-5 text-primary" />
+                            )}
                         </div>
-                        <CardTitle className="text-lg">Action Items</CardTitle>
+                        <CardTitle className="text-lg">
+                            {allDone ? "All Done! 🎉" : "Action Items"}
+                        </CardTitle>
                     </div>
                     {/* Progress counter */}
-                    <span className="text-sm text-muted-foreground">
-                        {completedCount}/{items.length} done
+                    <span
+                        className={`text-sm font-medium transition-colors ${allDone ? "text-green-500" : "text-muted-foreground"
+                            }`}
+                    >
+                        {completedCount}/{items.length}
                     </span>
+                </div>
+
+                {/* ── Animated Progress Bar ── */}
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                        className="progress-fill h-full rounded-full"
+                        style={{ width: `${progressPercent}%` }}
+                    />
                 </div>
             </CardHeader>
             <CardContent>
-                {/* 
-          items.map() — THE core React pattern for rendering lists
-          - For each item in the array, we return a JSX element
-          - "key={index}" helps React track which items changed
-            (in production, use unique IDs instead of indexes)
-        */}
-                <ul className="space-y-3">
+                <ul className="space-y-1">
                     {items.map((item, index) => (
                         <li
                             key={index}
-                            className="flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-muted/30"
+                            className={`flex items-start gap-3 rounded-lg p-2.5 transition-all duration-200 hover:bg-muted/30 ${checkedItems[index] ? "opacity-60" : ""
+                                }`}
+                            style={{ animationDelay: `${(index + 1) * 80}ms` }}
                         >
                             <Checkbox
                                 id={`action-item-${index}`}
                                 checked={checkedItems[index]}
                                 onCheckedChange={() => toggleItem(index)}
-                                className="mt-0.5"
+                                className={`mt-0.5 transition-all ${checkedItems[index] ? "animate-check-bounce" : ""
+                                    }`}
                             />
                             <label
                                 htmlFor={`action-item-${index}`}
-                                className={`cursor-pointer text-sm leading-relaxed transition-all ${checkedItems[index]
-                                        ? "text-muted-foreground line-through"
+                                className={`cursor-pointer text-sm leading-relaxed transition-all duration-300 ${checkedItems[index]
+                                        ? "text-muted-foreground line-through decoration-primary/40"
                                         : "text-foreground"
                                     }`}
                             >

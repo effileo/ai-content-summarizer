@@ -1,28 +1,14 @@
 /*
-  PDF DROPZONE COMPONENT
-  =======================
-  A drag-and-drop zone where users can upload PDF files.
-
-  WHAT YOU'LL LEARN:
-  - Drag-and-drop events in HTML/React (onDragOver, onDragLeave, onDrop)
-  - File input with useRef (accessing DOM elements directly)
-  - File validation (checking type and size)
-  - Visual feedback states (idle, dragging over, file selected)
-
-  HOW DRAG-AND-DROP WORKS IN THE BROWSER:
-  1. User drags a file over the zone → onDragOver fires
-  2. We call e.preventDefault() to allow dropping (browser blocks it by default!)
-  3. User releases the file → onDrop fires
-  4. We read the file from e.dataTransfer.files
-  5. We validate it's a PDF and not too large
-  6. We pass it up to the parent via onFileSelect
+  PDF DROPZONE COMPONENT — Refined
+  ==================================
+  Animated dashed border, bounce icon, gradient accent on file selection.
 */
 
 "use client";
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { FileUp, X, FileText, Loader2 } from "lucide-react";
+import { FileUp, X, FileText, Loader2, AlertCircle } from "lucide-react";
 
 interface PdfDropzoneProps {
     onFileSelect: (file: File) => void;
@@ -36,29 +22,18 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
     const [isDragging, setIsDragging] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [error, setError] = useState("");
-
-    /*
-      useRef HOOK
-      - Creates a reference to a DOM element
-      - We use it to programmatically trigger the hidden <input type="file">
-      - When user clicks "Browse files", we call fileInputRef.current.click()
-      - This is a common pattern for custom file upload UIs
-    */
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     function validateFile(file: File): boolean {
         setError("");
-
         if (file.type !== "application/pdf") {
             setError("Only PDF files are supported");
             return false;
         }
-
         if (file.size > MAX_FILE_SIZE_BYTES) {
             setError(`File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB`);
             return false;
         }
-
         return true;
     }
 
@@ -68,12 +43,6 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
         }
     }
 
-    /*
-      DRAG EVENT HANDLERS
-      - preventDefault() is REQUIRED on onDragOver, otherwise browser
-        won't allow the drop
-      - stopPropagation() prevents the event from bubbling up to parent elements
-    */
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -90,7 +59,6 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
         e.preventDefault();
         e.stopPropagation();
         setIsDragging(false);
-
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             handleFile(files[0]);
@@ -118,7 +86,6 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
         }
     };
 
-    /* Helper: format file size to human-readable string */
     function formatFileSize(bytes: number): string {
         if (bytes < 1024) return `${bytes} B`;
         if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -128,12 +95,6 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
     return (
         <div className="flex flex-col gap-3">
             {/* ── Hidden File Input ── */}
-            {/*
-        We hide the default <input type="file"> because it's ugly.
-        Instead, we style our own drop zone and trigger this input
-        programmatically via the ref.
-        accept=".pdf" tells the browser's file picker to only show PDFs.
-      */}
             <input
                 ref={fileInputRef}
                 type="file"
@@ -144,18 +105,20 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
 
             {selectedFile ? (
                 /* ── File Selected State ── */
-                <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
-                        <FileText className="h-8 w-8 shrink-0 text-primary" />
+                <div className="animate-fade-in-scale flex flex-col gap-3">
+                    <div className="gradient-accent-left flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 p-3 pl-5">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                            <FileText className="h-5 w-5 text-primary" />
+                        </div>
                         <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-medium">{selectedFile.name}</p>
                             <p className="text-xs text-muted-foreground">
-                                {formatFileSize(selectedFile.size)}
+                                {formatFileSize(selectedFile.size)} · PDF Document
                             </p>
                         </div>
                         <button
                             onClick={clearFile}
-                            className="shrink-0 rounded-md p-1 hover:bg-muted"
+                            className="shrink-0 rounded-md p-1.5 transition-colors hover:bg-muted"
                             aria-label="Remove file"
                         >
                             <X className="h-4 w-4 text-muted-foreground" />
@@ -164,7 +127,7 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
                     <Button
                         onClick={handleSubmit}
                         disabled={isLoading}
-                        className="w-full"
+                        className="btn-gradient w-full border-0 text-white shadow-md"
                     >
                         {isLoading ? (
                             <>
@@ -183,18 +146,29 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed p-6 text-center transition-all ${isDragging
-                            ? "dropzone-active border-primary bg-primary/5"
-                            : "border-border/50 hover:border-primary/40 hover:bg-muted/30"
+                    className={`group flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-all duration-300 ${isDragging
+                            ? "dropzone-active scale-[1.02] border-primary bg-primary/5"
+                            : "border-border/50 hover:border-primary/40 hover:bg-muted/20"
                         }`}
                 >
-                    <FileUp className={`h-8 w-8 ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
+                    <div
+                        className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 ${isDragging
+                                ? "bg-primary/15 text-primary"
+                                : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+                            }`}
+                    >
+                        <FileUp className="h-6 w-6 transition-transform duration-300 group-hover:-translate-y-1" />
+                    </div>
                     <div>
                         <p className="text-sm font-medium">
                             {isDragging ? "Drop your PDF here" : "Drag & drop a PDF"}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                            or click to browse · Max {MAX_FILE_SIZE_MB}MB
+                        <p className="mt-1 text-xs text-muted-foreground">
+                            or{" "}
+                            <span className="font-medium text-primary underline underline-offset-2">
+                                browse files
+                            </span>{" "}
+                            · Max {MAX_FILE_SIZE_MB}MB
                         </p>
                     </div>
                 </div>
@@ -202,7 +176,10 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
 
             {/* ── Error Message ── */}
             {error && (
-                <p className="text-sm text-destructive">{error}</p>
+                <div className="animate-fade-in-scale flex items-center gap-2 text-sm text-destructive">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    <p>{error}</p>
+                </div>
             )}
         </div>
     );
