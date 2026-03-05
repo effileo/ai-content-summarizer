@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { FileUp, X, FileText, Loader2, AlertCircle } from "lucide-react";
 
 interface PdfDropzoneProps {
-    onFileSelect: (file: File) => void;
+    onFileSelect: (file: File) => Promise<void>;
     isLoading: boolean;
 }
 
@@ -80,9 +80,9 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (selectedFile) {
-            onFileSelect(selectedFile);
+            await onFileSelect(selectedFile);
         }
     };
 
@@ -147,14 +147,14 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
                     className={`group flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-all duration-300 ${isDragging
-                            ? "dropzone-active scale-[1.02] border-primary bg-primary/5"
-                            : "border-border/50 hover:border-primary/40 hover:bg-muted/20"
+                        ? "dropzone-active scale-[1.02] border-primary bg-primary/5"
+                        : "border-border/50 hover:border-primary/40 hover:bg-muted/20"
                         }`}
                 >
                     <div
                         className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300 ${isDragging
-                                ? "bg-primary/15 text-primary"
-                                : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+                            ? "bg-primary/15 text-primary"
+                            : "bg-muted/50 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
                             }`}
                     >
                         <FileUp className="h-6 w-6 transition-transform duration-300 group-hover:-translate-y-1" />

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, ArrowRight, AlertCircle } from "lucide-react";
 
 interface YouTubeInputProps {
-    onSubmit: (url: string) => void;
+    onSubmit: (url: string) => Promise<void>;
     isLoading: boolean;
 }
 
@@ -26,7 +26,7 @@ export function YouTubeInput({ onSubmit, isLoading }: YouTubeInputProps) {
     const [url, setUrl] = useState("");
     const [error, setError] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         const trimmedUrl = url.trim();
@@ -38,7 +38,7 @@ export function YouTubeInput({ onSubmit, isLoading }: YouTubeInputProps) {
             setError("Please enter a valid YouTube URL");
             return;
         }
-        onSubmit(trimmedUrl);
+        await onSubmit(trimmedUrl);
     };
 
     return (
