@@ -2,21 +2,20 @@
 YouTube Service — Transcript Extraction
 =======================================
 This service handles extracting transcripts from YouTube videos.
+Updated for youtube-transcript-api v1.x
 """
 
 from urllib.parse import parse_qs, urlparse
 
 from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api._errors import TranscriptsDisabled, VideoUnavailable, NoTranscriptFound
 
 
 class TranscriptExtractionError(Exception):
-    def __init__(self, message: str, youtube_url: str):
+    def __init__(self, message: str, youtube_url: str = ""):
         super().__init__(message)
         self.yt_dlp_suggestion = (
             "Transcript unavailable via youtube-transcript-api. "
-            "Fallback: use yt-dlp to download audio, then transcribe it with an ASR model like Whisper. "
-            f'Example: yt-dlp -x --audio-format mp3 -o "%(id)s.%(ext)s" "{youtube_url}"'
+            "Fallback: use yt-dlp to download audio, then transcribe with Whisper."
         )
 
 
@@ -53,19 +52,18 @@ async def extract_transcript(youtube_url: str) -> str:
     video_id = _extract_video_id(youtube_url)
 
     try:
-        transcript_entries = YouTubeTranscriptApi.get_transcript(video_id)
-    except (TranscriptsDisabled, NoTranscriptFound, VideoUnavailable) as exc:
-        raise TranscriptExtractionError(
-            "Transcript is unavailable for this video.", youtube_url
-        ) from exc
+        # v1.x API: create instance, then call .fetch()
+        ytt_api = YouTubeTranscriptApi()
+        transcript = ytt_api.fetch(video_id)
+
+        transcript_text = " ".join(
+            snippet.text.strip() for snippet in transcript if snippet.text
+        ).strip()
+
     except Exception as exc:
         raise TranscriptExtractionError(
             f"Failed to fetch transcript: {exc}", youtube_url
         ) from exc
-
-    transcript_text = " ".join(
-        entry.get("text", "").strip() for entry in transcript_entries if entry.get("text")
-    ).strip()
 
     if not transcript_text:
         raise TranscriptExtractionError(
