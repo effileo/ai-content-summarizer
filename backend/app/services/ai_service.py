@@ -4,8 +4,11 @@ AI Service — Google Gemini Integration
 Takes extracted text (from PDF or YouTube transcript),
 sends it to Gemini with a structured prompt, and parses
 the response into a summary + action items.
+
+Includes automatic retry with exponential backoff for rate limits.
 """
 
+import asyncio
 import json
 import os
 
@@ -17,9 +20,12 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # ─── Gemini Model ──────────────────────────────────────────────
-# "gemini-1.5-flash" → fast and cheap, great for summarization
-# "gemini-1.5-pro"   → slower but deeper analysis
-model = genai.GenerativeModel("gemini-1.5-flash")
+# "gemini-2.0-flash-lite" → lightest model, separate quota from flash
+model = genai.GenerativeModel("gemini-2.0-flash-lite")
+
+# ─── Retry Config ──────────────────────────────────────────────
+MAX_RETRIES = 3
+INITIAL_WAIT = 30  # seconds
 
 # ─── Prompt Template ───────────────────────────────────────────
 PROMPT_TEMPLATE = """You are an expert content summarizer.
@@ -43,6 +49,7 @@ Content to analyze:
 async def generate_summary(content: str, source_type: str) -> dict:
     """
     Generate a structured summary using Google Gemini.
+    Automatically retries on rate limit errors (429).
 
     Args:
         content: The extracted text to summarize
@@ -53,34 +60,47 @@ async def generate_summary(content: str, source_type: str) -> dict:
     """
     prompt = PROMPT_TEMPLATE.format(
         source_type=source_type,
-        content=content[:50000],  # Limit to ~50k chars to stay within token limit
+        content=content[:50000],
     )
 
-    try:
-        response = await model.generate_content_async(prompt)
-        text = response.text.strip()
+    for attempt in range(MAX_RETRIES):
+        try:
+            response = await model.generate_content_async(prompt)
+            text = response.text.strip()
 
-        # Clean up if Gemini wraps the JSON in code fences
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1]  # Remove first line (```json)
-            text = text.rsplit("```", 1)[0]  # Remove last ``` 
-            text = text.strip()
+            # Clean up if Gemini wraps the JSON in code fences
+            if text.startswith("```"):
+                text = text.split("\n", 1)[1]
+                text = text.rsplit("```", 1)[0]
+                text = text.strip()
 
-        result = json.loads(text)
+            result = json.loads(text)
 
-        return {
-            "summary": result.get("summary", "No summary generated."),
-            "action_items": result.get("action_items", []),
-        }
+            return {
+                "summary": result.get("summary", "No summary generated."),
+                "action_items": result.get("action_items", []),
+            }
 
-    except json.JSONDecodeError:
-        # If Gemini returns non-JSON, use the raw text as the summary
-        return {
-            "summary": response.text.strip(),
-            "action_items": [],
-        }
-    except Exception as e:
-        return {
-            "summary": f"Error generating summary: {str(e)}",
-            "action_items": [],
-        }
+        except json.JSONDecodeError:
+            return {
+                "summary": response.text.strip(),
+                "action_items": [],
+            }
+        except Exception as e:
+            error_msg = str(e)
+            # If rate limited (429), wait and retry
+            if "429" in error_msg and attempt < MAX_RETRIES - 1:
+                wait_time = INITIAL_WAIT * (attempt + 1)
+                print(f"⏳ Rate limited. Retrying in {wait_time}s... (attempt {attempt + 1}/{MAX_RETRIES})")
+                await asyncio.sleep(wait_time)
+                continue
+            # Final attempt or non-retryable error
+            return {
+                "summary": f"Error generating summary: {error_msg}",
+                "action_items": [],
+            }
+
+    return {
+        "summary": "Failed after multiple retries. Please try again later.",
+        "action_items": [],
+    }
