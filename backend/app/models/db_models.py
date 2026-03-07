@@ -48,9 +48,8 @@ class Summary(Base):
 
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("auth.users.id", ondelete="CASCADE"),
         nullable=False,
-        comment="The Supabase auth user who owns this summary",
+        comment="The Supabase auth user who owns this summary (DB level FK to auth.users)",
     )
 
     source_type: Mapped[str] = mapped_column(

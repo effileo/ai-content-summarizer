@@ -101,7 +101,10 @@ async def init_db() -> None:
     import app.models.db_models  # noqa: F401
 
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        # We comment this out because Supabase already created our tables via schema.sql,
+        # and SQLAlchemy doesn't have access to the internal `auth.users` table to validate foreign keys.
+        # await conn.run_sync(Base.metadata.create_all)
+        pass
 
     print("✅ Database connected — tables verified")
 
