@@ -1,9 +1,8 @@
 """
 AI Service — Google Gemini Integration
 ========================================
-Takes extracted text (from PDF or YouTube transcript),
-sends it to Gemini with a structured prompt, and parses
-the response into a summary + action items.
+Uses the official google.genai package (v1+) to generate
+structured summaries and action items from content.
 
 Includes automatic retry with exponential backoff for rate limits.
 """
@@ -12,18 +11,16 @@ import asyncio
 import json
 import os
 
-import google.generativeai as genai
 from dotenv import load_dotenv
+from google import genai
 
 # ─── Load API Key ───────────────────────────────────────────────
 load_dotenv()
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-# ─── Gemini Model ──────────────────────────────────────────────
-# "gemini-2.0-flash-lite" → lightest model, separate quota from flash
-model = genai.GenerativeModel("gemini-2.0-flash-lite")
+client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
-# ─── Retry Config ──────────────────────────────────────────────
+# ─── Config ────────────────────────────────────────────────────
+MODEL = "gemini-2.5-flash"
 MAX_RETRIES = 3
 INITIAL_WAIT = 30  # seconds
 
@@ -65,7 +62,10 @@ async def generate_summary(content: str, source_type: str) -> dict:
 
     for attempt in range(MAX_RETRIES):
         try:
-            response = await model.generate_content_async(prompt)
+            response = client.models.generate_content(
+                model=MODEL,
+                contents=prompt,
+            )
             text = response.text.strip()
 
             # Clean up if Gemini wraps the JSON in code fences
@@ -94,7 +94,6 @@ async def generate_summary(content: str, source_type: str) -> dict:
                 print(f"⏳ Rate limited. Retrying in {wait_time}s... (attempt {attempt + 1}/{MAX_RETRIES})")
                 await asyncio.sleep(wait_time)
                 continue
-            # Final attempt or non-retryable error
             return {
                 "summary": f"Error generating summary: {error_msg}",
                 "action_items": [],
