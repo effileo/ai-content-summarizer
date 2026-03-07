@@ -20,9 +20,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileText, Youtube, AlertCircle, Sparkles, Heart } from "lucide-react";
+import { FileText, Youtube, AlertCircle, Sparkles, Heart, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
+import { AuthForm } from "@/components/auth-form";
 
 export default function Home() {
+  const { user, isLoading: isAuthLoading } = useAuth();
+
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SummaryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -62,6 +66,30 @@ export default function Home() {
       setIsLoading(false);
     }
   };
+
+  if (isAuthLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // If no user, show the Auth Form only (wrap it in the same cool background)
+  if (!user) {
+    return (
+      <div className="relative flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-8">
+        <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+          <div className="animate-blob-1 absolute -left-32 -top-32 h-96 w-96 rounded-full opacity-30 blur-3xl" style={{ background: "radial-gradient(circle, oklch(0.55 0.25 270 / 0.4), transparent 70%)" }} />
+          <div className="animate-blob-2 absolute -right-32 top-24 h-80 w-80 rounded-full opacity-25 blur-3xl" style={{ background: "radial-gradient(circle, oklch(0.6 0.22 310 / 0.35), transparent 70%)" }} />
+        </div>
+        <Header />
+        <div className="mt-12 w-full max-w-sm">
+          <AuthForm />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-background">

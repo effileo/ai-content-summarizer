@@ -4,13 +4,37 @@
   The top branding section with animated badge, gradient text, and glow effects.
 */
 
-import { Sparkles, Zap } from "lucide-react";
+import { Sparkles, Zap, LogOut, Clock } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
+import Link from "next/link";
 
 export function Header() {
+    const { user, signOut } = useAuth();
+
     return (
-        <header className="animate-fade-in-up flex flex-col items-center gap-6 text-center">
+        <header className="animate-fade-in-up relative flex w-full max-w-5xl flex-col items-center gap-6 text-center pt-8">
+            {/* ── Top Nav (if logged in) ── */}
+            {user && (
+                <div className="absolute right-0 top-0 mt-4 flex items-center gap-4">
+                    <Link
+                        href="/history"
+                        className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-white"
+                    >
+                        <Clock className="h-4 w-4" />
+                        History
+                    </Link>
+                    <button
+                        onClick={signOut}
+                        className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-destructive"
+                    >
+                        <LogOut className="h-4 w-4" />
+                        Sign Out
+                    </button>
+                </div>
+            )}
+
             {/* ── Animated Badge ── */}
-            <div className="animate-fade-in-scale inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm text-primary backdrop-blur-sm">
+            <div className="animate-fade-in-scale mt-12 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm text-primary backdrop-blur-sm">
                 <Zap className="h-3.5 w-3.5" />
                 <span className="font-medium">Powered by Gemini AI</span>
                 <span className="relative flex h-2 w-2">
@@ -50,11 +74,6 @@ export function Header() {
                 <span className="flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary"></span>
                     AI-powered
-                </span>
-                <span className="h-3 w-px bg-border"></span>
-                <span className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                    No signup required
                 </span>
             </div>
         </header>

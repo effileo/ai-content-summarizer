@@ -34,6 +34,8 @@ export const metadata: Metadata = {
   - The {children} prop is whatever page component is currently active
   - "antialiased" makes fonts render smoother on screens
 */
+import { AuthProvider } from "@/context/auth-context";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -42,7 +44,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

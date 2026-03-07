@@ -71,3 +71,15 @@ class TranscriptResponse(BaseModel):
         ...,
         description="The full transcript of the provided YouTube video as a single string.",
     )
+
+
+class SummaryHistoryItem(BaseModel):
+    """A single summary in the user's history."""
+
+    id: str = Field(..., description="Unique summary ID")
+    source_type: str = Field(..., description="'youtube' or 'pdf'")
+    source_name: str = Field(..., description="URL or filename")
+    summary: str = Field(..., description="The AI-generated summary")
+    action_items: list[str] = Field(default_factory=list)
+    created_at: str = Field(..., description="ISO timestamp")
+

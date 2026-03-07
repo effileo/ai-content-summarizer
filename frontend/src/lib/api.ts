@@ -31,10 +31,10 @@ const API_BASE_URL = "http://localhost:8000";
   for catching type errors during development.
 */
 export interface SummaryResult {
-    summary: string;
-    action_items: string[];
-    source_type: "pdf" | "youtube";
-    source_name: string;
+  summary: string;
+  action_items: string[];
+  source_type: "pdf" | "youtube";
+  source_name: string;
 }
 
 /*
@@ -44,12 +44,12 @@ export interface SummaryResult {
   - This helps the UI show more specific error messages
 */
 export class ApiError extends Error {
-    status: number;
-    constructor(message: string, status: number) {
-        super(message);
-        this.name = "ApiError";
-        this.status = status;
-    }
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
 }
 
 /*
@@ -66,25 +66,37 @@ export class ApiError extends Error {
   IMPORTANT: fetch() does NOT throw on HTTP errors (4xx, 5xx).
   It only throws on network errors. So we must check response.ok manually.
 */
+import { supabase } from "./supabase";
+
+/*
+  Helper to get the current Auth Token
+*/
+async function getAuthToken() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token;
+}
+
 export async function summarizeYoutube(url: string): Promise<SummaryResult> {
-    const response = await fetch(`${API_BASE_URL}/api/summarize/youtube`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json", // Tell the server we're sending JSON
-        },
-        body: JSON.stringify({ url }), // Convert JS object → JSON string
-    });
+  const token = await getAuthToken();
+  const response = await fetch(`${API_BASE_URL}/api/summarize/youtube`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ url }),
+  });
 
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        const message =
-            errorData?.detail?.message ||
-            errorData?.detail ||
-            "Failed to summarize YouTube video";
-        throw new ApiError(message, response.status);
-    }
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    const message =
+      errorData?.detail?.message ||
+      errorData?.detail ||
+      "Failed to summarize YouTube video";
+    throw new ApiError(message, response.status);
+  }
 
-    return response.json();
+  return response.json();
 }
 
 /*
@@ -100,22 +112,52 @@ export async function summarizeYoutube(url: string): Promise<SummaryResult> {
   The browser sets it automatically with the correct boundary string.
 */
 export async function summarizePdf(file: File): Promise<SummaryResult> {
-    const formData = new FormData();
-    formData.append("file", file); // "file" must match the parameter name in FastAPI
+  const formData = new FormData();
+  formData.append("file", file); // "file" must match the parameter name in FastAPI
 
-    const response = await fetch(`${API_BASE_URL}/api/summarize/pdf`, {
-        method: "POST",
-        body: formData, // No Content-Type header — browser handles it!
-    });
+  const token = await getAuthToken();
+  const response = await fetch(`${API_BASE_URL}/api/summarize/pdf`, {
+    method: "POST",
+    headers: {
+      // Do NOT set Content-Type here, see explanation above
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
 
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        const message =
-            errorData?.detail?.message ||
-            errorData?.detail ||
-            "Failed to summarize PDF";
-        throw new ApiError(message, response.status);
-    }
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    const message =
+      errorData?.detail?.message ||
+      errorData?.detail ||
+      "Failed to summarize PDF";
+    throw new ApiError(message, response.status);
+  }
 
-    return response.json();
+  return response.json();
+}
+
+export interface SummaryHistoryItem {
+  id: string;
+  source_type: "pdf" | "youtube";
+  source_name: string;
+  summary: string;
+  action_items: string[];
+  created_at: string;
+}
+
+export async function getHistory(): Promise<SummaryHistoryItem[]> {
+  const token = await getAuthToken();
+  const response = await fetch(`${API_BASE_URL}/api/summaries`, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Failed to fetch history", response.status);
+  }
+
+  return response.json();
 }
