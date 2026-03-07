@@ -10,6 +10,7 @@ Includes automatic retry with exponential backoff for rate limits.
 import asyncio
 import json
 import os
+import re
 
 from dotenv import load_dotenv
 from google import genai
@@ -29,14 +30,19 @@ PROMPT_TEMPLATE = """You are an expert content summarizer.
 
 Analyze the following {source_type} content and return a JSON object with exactly two keys:
 
-1. "summary" — A well-structured, detailed summary of the content.
-   Use clear paragraphs. Highlight key points.
+1. "summary" — A beautifully structured, detailed summary of the content written in Markdown. 
+   Use extensive Markdown formatting such as:
+   - **Bold** text for emphasis
+   - `##` or `###` Headers to organize sections
+   - Bullet points for lists
+   Make it highly readable and engaging. The markdown should be a single string within the JSON value.
+   Important: Escape all quotes and use \\n for newlines within this string so the JSON remains valid.
 
 2. "action_items" — A JSON array of specific, actionable tasks
    the reader should take based on this content.
    Each item should be a short, clear sentence.
 
-IMPORTANT: Return ONLY valid JSON. No markdown, no code fences, no extra text.
+IMPORTANT: You must return ONLY a valid JSON object. Do not wrap the entire response in markdown code fences, do not output any conversational text.
 
 Content to analyze:
 {content}
@@ -68,11 +74,10 @@ async def generate_summary(content: str, source_type: str) -> dict:
             )
             text = response.text.strip()
 
-            # Clean up if Gemini wraps the JSON in code fences
-            if text.startswith("```"):
-                text = text.split("\n", 1)[1]
-                text = text.rsplit("```", 1)[0]
-                text = text.strip()
+            # Safely extract JSON block using regex
+            match = re.search(r'\{.*\}', text, re.DOTALL)
+            if match:
+                text = match.group(0)
 
             result = json.loads(text)
 

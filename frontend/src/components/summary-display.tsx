@@ -1,9 +1,3 @@
-/*
-  SUMMARY DISPLAY COMPONENT — Refined
-  =====================================
-  Slide-in animation, gradient accent bar, enhanced copy button.
-*/
-
 "use client";
 
 import { useState } from "react";
@@ -17,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Copy, FileText, Youtube, Sparkles } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface SummaryDisplayProps {
     summary: string;
@@ -52,8 +48,8 @@ export function SummaryDisplay({
                                 <Badge
                                     variant="secondary"
                                     className={`gap-1 text-xs ${sourceType === "youtube"
-                                            ? "border-red-500/20 bg-red-500/10 text-red-400"
-                                            : "border-primary/20 bg-primary/10 text-primary"
+                                        ? "border-red-500/20 bg-red-500/10 text-red-400"
+                                        : "border-primary/20 bg-primary/10 text-primary"
                                         }`}
                                 >
                                     {sourceType === "youtube" ? (
@@ -76,8 +72,8 @@ export function SummaryDisplay({
                         size="sm"
                         onClick={handleCopy}
                         className={`shrink-0 transition-all ${copied
-                                ? "text-green-500 hover:text-green-500"
-                                : "text-muted-foreground hover:text-foreground"
+                            ? "text-green-500 hover:text-green-500"
+                            : "text-muted-foreground hover:text-foreground"
                             }`}
                     >
                         {copied ? (
@@ -95,8 +91,16 @@ export function SummaryDisplay({
                 </div>
             </CardHeader>
             <CardContent>
-                <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-                    {summary}
+                <div className="prose prose-invert max-w-none text-sm leading-relaxed text-foreground/90 
+                    prose-headings:text-primary prose-headings:font-semibold 
+                    prose-h1:text-xl prose-h2:text-lg prose-h3:text-base 
+                    prose-p:leading-relaxed 
+                    prose-a:text-primary hover:prose-a:text-primary/80 
+                    prose-strong:text-white 
+                    prose-ul:list-disc prose-ol:list-decimal prose-li:-my-2">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {summary}
+                    </ReactMarkdown>
                 </div>
             </CardContent>
         </Card>
