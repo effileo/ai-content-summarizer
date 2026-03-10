@@ -43,12 +43,12 @@ export function AuthForm() {
     };
 
     return (
-        <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-black/40 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="w-full max-w-sm rounded-2xl border border-border bg-card/80 p-8 shadow-2xl backdrop-blur-xl">
             <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-foreground">
                     {isLogin ? "Welcome back" : "Create account"}
                 </h2>
-                <p className="mt-2 text-sm text-zinc-400">
+                <p className="mt-2 text-sm text-muted-foreground">
                     {isLogin
                         ? "Sign in to access your summaries"
                         : "Sign up to start summarizing content"}
@@ -58,27 +58,27 @@ export function AuthForm() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 {/* Email Input */}
                 <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+                    <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         type="email"
                         placeholder="Email address"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-primary"
+                        className="pl-10 focus-visible:ring-1 focus-visible:ring-primary"
                     />
                 </div>
 
                 {/* Password Input */}
                 <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         type="password"
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="border-white/10 bg-white/5 pl-10 text-white placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-primary"
+                        className="pl-10 focus-visible:ring-1 focus-visible:ring-primary"
                     />
                 </div>
 
@@ -99,7 +99,7 @@ export function AuthForm() {
                 <Button
                     type="submit"
                     disabled={isLoading}
-                    className="btn-gradient mt-2 w-full text-white"
+                    className="btn-gradient mt-2 w-full text-primary-foreground"
                 >
                     {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -112,7 +112,7 @@ export function AuthForm() {
             </form>
 
             {/* Toggle View */}
-            <div className="mt-6 text-center text-sm text-zinc-400">
+            <div className="mt-6 text-center text-sm text-muted-foreground">
                 {isLogin ? "Don't have an account? " : "Already have an account? "}
                 <button
                     type="button"

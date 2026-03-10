@@ -127,7 +127,7 @@ export function PdfDropzone({ onFileSelect, isLoading }: PdfDropzoneProps) {
                     <Button
                         onClick={handleSubmit}
                         disabled={isLoading}
-                        className="btn-gradient w-full border-0 text-white shadow-md"
+                        className="btn-gradient w-full border-0 text-primary-foreground shadow-md"
                     >
                         {isLoading ? (
                             <>

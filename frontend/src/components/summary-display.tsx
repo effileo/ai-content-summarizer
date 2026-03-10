@@ -91,12 +91,12 @@ export function SummaryDisplay({
                 </div>
             </CardHeader>
             <CardContent>
-                <div className="prose prose-invert max-w-none text-sm leading-relaxed text-foreground/90 
+                <div className="prose prose-neutral dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90 
                     prose-headings:text-primary prose-headings:font-semibold 
                     prose-h1:text-xl prose-h2:text-lg prose-h3:text-base 
-                    prose-p:leading-relaxed 
+                    prose-p:leading-relaxed prose-p:text-foreground/90
                     prose-a:text-primary hover:prose-a:text-primary/80 
-                    prose-strong:text-white 
+                    prose-strong:text-foreground 
                     prose-ul:list-disc prose-ol:list-decimal prose-li:-my-2">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {summary}

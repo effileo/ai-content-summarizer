@@ -59,7 +59,7 @@ export function YouTubeInput({ onSubmit, isLoading }: YouTubeInputProps) {
                 <Button
                     type="submit"
                     disabled={isLoading || !url.trim()}
-                    className="btn-gradient shrink-0 border-0 text-white shadow-md"
+                    className="btn-gradient shrink-0 border-0 text-primary-foreground shadow-md"
                 >
                     {isLoading ? (
                         <>
