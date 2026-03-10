@@ -13,33 +13,35 @@ export function Header() {
     const { user, signOut } = useAuth();
 
     return (
-        <header className="animate-fade-in-up flex w-full max-w-5xl flex-col items-center gap-6 text-center">
-            {/* ── Top Nav bar: separate row with clear spacing ── */}
-            <div className="flex w-full items-center justify-end gap-2 border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur-sm sm:gap-3 sm:px-6">
-                <ThemeToggle />
-                {user && (
-                    <>
-                        <span className="h-4 w-px bg-border" aria-hidden />
-                        <Link
-                            href="/history"
-                            className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted hover:border-primary/30 hover:text-primary"
-                        >
-                            <Clock className="h-4 w-4" />
-                            History
-                        </Link>
-                        <button
-                            onClick={signOut}
-                            className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
-                        >
-                            <LogOut className="h-4 w-4" />
-                            Sign Out
-                        </button>
-                    </>
-                )}
+        <header className="animate-fade-in-up flex w-full max-w-5xl flex-col items-center gap-6 text-center pt-14 sm:pt-16">
+            {/* ── Nav bar: fixed at top of page, History + Sign Out on the left ── */}
+            <div className="fixed left-0 right-0 top-0 z-10 border-b border-border/60 bg-background/95 py-3 backdrop-blur-md">
+                <div className="mx-auto flex max-w-5xl items-center justify-end gap-2 px-4 sm:gap-3 sm:px-6">
+                    <ThemeToggle />
+                    {user && (
+                        <>
+                            <span className="h-4 w-px bg-border" aria-hidden />
+                            <Link
+                                href="/history"
+                                className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted hover:border-primary/30 hover:text-primary"
+                            >
+                                <Clock className="h-4 w-4" />
+                                History
+                            </Link>
+                            <button
+                                onClick={signOut}
+                                className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
+                            >
+                                <LogOut className="h-4 w-4" />
+                                Sign Out
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* ── Hero content ── */}
-            <div className="flex w-full flex-col items-center gap-6 pt-8">
+            <div className="flex w-full flex-col items-center gap-6 pt-8 sm:pt-10">
             <h1 className="gradient-text-animated text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                 AI Content Summarizer
             </h1>
