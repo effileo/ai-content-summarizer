@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { getHistory, type SummaryHistoryItem } from "@/lib/api";
-import { Header } from "@/components/header";
 import {
     Card,
     CardContent,
@@ -28,8 +27,9 @@ export default function HistoryPage() {
             try {
                 const data = await getHistory();
                 setHistory(data);
-            } catch (err: any) {
-                setError(err.message || "Failed to load history.");
+            } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : "Failed to load history.";
+                setError(errorMessage);
             } finally {
                 setIsLoading(false);
             }

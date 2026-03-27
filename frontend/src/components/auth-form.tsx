@@ -35,8 +35,9 @@ export function AuthForm() {
                 if (error) throw error;
                 setMessage("Check your email to confirm your account!");
             }
-        } catch (err: any) {
-            setError(err.message || "An error occurred");
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "An error occurred";
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
         }
