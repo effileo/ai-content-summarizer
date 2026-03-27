@@ -96,7 +96,7 @@ export function AuthForm() {
                     </div>
                 )}
 
-                {/* Submit Button */}
+                {/* Submit Action Button */}
                 <Button
                     type="submit"
                     disabled={isLoading}
