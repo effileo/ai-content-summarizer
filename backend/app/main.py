@@ -13,6 +13,7 @@ async def lifespan(app: FastAPI):
     await close_db()
 
 
+# Initialize the core FastAPI application framework
 app = FastAPI(
     title="AI Content Summarizer API",
     version="1.0.0",
