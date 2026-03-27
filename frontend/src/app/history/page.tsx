@@ -52,6 +52,7 @@ export default function HistoryPage() {
             <div className="flex min-h-screen flex-col items-center justify-center bg-background p-8 text-center">
                 <h2 className="mb-4 text-2xl font-bold text-foreground">Access Denied</h2>
                 <p className="mb-8 text-muted-foreground">You must be logged in to view your history.</p>
+                {/* Link to return to the application homepage */}
                 <Link href="/" className="text-primary hover:underline">
                     Return to home
                 </Link>
